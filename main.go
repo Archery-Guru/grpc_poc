@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"sync"
@@ -17,6 +18,7 @@ type server struct {
 }
 
 func (s *server) Connect(user *chat.User, stream chat.ChatService_ConnectServer) error {
+	fmt.Printf("User %s connected\n", user.Name)
 	s.mu.Lock()
 	messageChannel := make(chan chat.Message, 10)
 	s.connectedClients[user] = messageChannel
@@ -42,6 +44,7 @@ func (s *server) Connect(user *chat.User, stream chat.ChatService_ConnectServer)
 }
 
 func (s *server) SendMessage(ctx context.Context, message *chat.Message) (*chat.Empty, error) {
+	fmt.Printf("Message received from %s: %s\n", message.From, message.Content)
 	s.mu.Lock()
 	for _, messageChannel := range s.connectedClients {
 		select {
